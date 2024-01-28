@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Move Image Randomly</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+   <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #container {
+            position: relative;
+        }
+
+        #chicken {
+            position: absolute;
+            width: 150px; 
+            height: 150px;
+            transition: transform 0.5s ease-in-out;
+            z-index: 2; 
+        }
+
+        .egg {
+            position: absolute;
+            width: 50px; /* Set your egg dimensions */
+            height: 50px;
+            transition: opacity 0.5s ease-in-out;
+            cursor: pointer;
+            z-index: 1; /* Set a lower z-index for the eggs */
+           }
+
+           .score{
+            position: fixed; bottom: 0px; left: 50%; 
+            margin-bottom: 50px; background-color: blue; 
+            color: white; border-radius: 20px; 
+            border: 1px solid transparent; 
+            padding: 10px; width: 200px;
+           }
+
+   </style>
+   <script>
+    $(function(){
+        const container = $('#container');
+        const chicken = $('#chicken');
+        let score=1;
+
+            function moveChickenAndDropEgg() {
+                const newX = Math.random() * (window.innerWidth - chicken.width());
+                const newY = Math.random() * (window.innerHeight - chicken.height());
+
+                // Move the chicken to the new position
+                chicken.css({ transform: `translate(${newX}px, ${newY}px)` });
+
+                // Set a delay before dropping the egg (adjust as needed)
+                const delayBeforeEggDrop = 1000; // 1 second delay
+
+                // Wait for the chicken to reach its destination before dropping the egg
+                setTimeout(() => {
+                    // Create and display an egg image
+                    const egg = $('<img>', {
+                        src: getRandomEggImage(),
+                        alt: 'Egg',
+                        class: 'egg'
+                    });
+
+                    egg.css({
+                        left: `${newX+15}px`,
+                        top: `${newY+15}px`
+                    });
+
+                    container.append(egg);
+
+                    // Add click event listener to the egg
+                    egg.on('click', function () {
+                        $(this).attr('src', getRandomChickenImage()) // Replace with a small chicken image
+                            .css({
+                                width: '150px', // Set your small chicken dimensions
+                                height: '150px'
+                            })
+                            .off('click', handleClick); // Remove the click event listener to prevent multiple clicks
+                               
+                            let scoreId=$("#score").html("").append("Score: "+score++)
+                            console.log("egg1 ")
+                            setTimeout(() => {
+                                console.log("egg1 remove")
+                                $(this).remove();
+                            }, 2000);
+                    });
+
+                    // Add click event listener to handle the initial click
+                    function handleClick() {
+                        $(this).attr('src', getRandomChickenImage()) // Replace with a small chicken image
+                            .css({
+                                width: '150px', // Set your small chicken dimensions
+                                height: '150px'
+                            })
+                            .off('click', handleClick); // Remove the click event listener to prevent multiple clicks
+                            console.log("egg22")
+                        setTimeout(() => {
+                            console.log("egg1 remove ")
+                            $(this).remove();
+                        }, 2000);
+                    }
+
+                    egg.on('click', handleClick);
+                }, delayBeforeEggDrop);
+            }
+
+            function getRandomEggImage() {
+                // Assuming you have 10 egg images named egg1.png to egg10.png
+                const randomEggNumber = Math.floor(Math.random() * 10) + 1;
+                return `egg${randomEggNumber}.png`;
+            }
+
+            function getRandomChickenImage() {
+                // Assuming you have 10 egg images named egg1.png to egg10.png
+                const randomEggNumber = Math.floor(Math.random() * 10) + 1;
+                return `giphy${randomEggNumber}.gif`;
+            }
+            setInterval(moveChickenAndDropEgg, 2000);
+
+
+    })
+   </script>
+</head>
+<body>
+   
+    <div id="container">
+        <img src="chicken.png" alt="Chicken" id="chicken">
+        <button class="score" id="score">Score: 0</button>
+    </div>
+</body>
+</html>

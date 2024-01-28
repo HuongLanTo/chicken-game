@@ -1,1 +1,235 @@
-Chicken Game
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: rgb(248, 248, 200);
+        }
+
+        #container {
+            position: relative;
+        }
+
+        #chicken {
+            position: absolute;
+            width: 150px; 
+            height: 150px;
+            transition: transform 0.5s ease-in-out;
+            z-index: 3; 
+        }
+
+        .egg {
+            position: absolute;
+            width: 50px; /* Set your egg dimensions */
+            height: 50px;
+            transition: opacity 0.5s ease-in-out;
+            cursor: pointer;
+            z-index: 2; /* Set a lower z-index for the eggs */
+           }
+
+           .score{
+            position: fixed; bottom: 0px; left: 50%; 
+            margin-bottom: 50px; background-color: blue; 
+            color: white; border-radius: 20px; 
+            border: 1px solid transparent; 
+            padding: 10px; width: 200px;
+            z-index: 10;
+           }
+         
+
+   </style>
+    <script>
+        window.onload = function () {
+            let grassCount = window.innerWidth / 100;
+            $('body').append('<img src="grass-ground.png" alt="grass-ground" width="' + window.innerWidth + 'px" style="position: absolute; height: 90%; bottom: 0; z-index: 1" />')
+
+            // cloud
+            let cloudQuery = $('.cloud');
+            for (let i = 0; i < cloudQuery.length; i++) {
+                console.log($(cloudQuery[i]));
+                let move = 0;
+                setInterval(function () {
+                    if (move > window.innerWidth - 65 - window.innerWidth * i * 25 / 100) {
+                        move = 0 - window.innerWidth * i * 25 / 100;
+                    } else {
+                        move++;
+                    }
+                    $(cloudQuery[i]).css("margin-left", move + "px");
+                }, 50)
+            }
+
+            // cloud 2
+            let cloudQuery2 = $('.cloud-2');
+            for (let i = 0; i < cloudQuery2.length; i++) {
+                let move = 0;
+                setInterval(function () {
+                    if (move > window.innerWidth - 65 - window.innerWidth * (i + 1) * 15 / 100) {
+                        move = 0 - window.innerWidth * (i + 1) * 15 / 100;
+                    } else {
+                        move++;
+                    }
+                    $(cloudQuery2[i]).css("margin-left", move + "px");
+                }, 50)
+            }
+
+            // sun
+            let sunScale = 1;
+            setInterval(function () {
+                if (sunScale == 1) {
+                    $('#sun').css('transform', 'scale(1.2)');
+                    sunScale = 1.5;
+                } else {
+                    $('#sun').css('transform', 'scale(1)');
+                    sunScale = 1;
+                }
+                $('#sun').css('transition', 'all 0.5s');
+            }, 3000)
+
+            // star
+            for (let i = 0; i < 20; i++) {
+                let left = Math.floor(Math.random() * window.innerWidth) + 1;
+                let top = Math.floor(Math.random() * 200) + 1;
+                $('body').append('<img class="stars" src="stars.png" alt="star" width="12" style="position: absolute; top: ' + top + 'px; left: ' + left + 'px; opacity: 0" />')
+            }
+
+            let mode = 'light';
+            setInterval(function () {
+                mode = mode == 'light' ? 'dark' : 'light';
+                if (mode == 'light') {
+                    $('body').css('background-color', 'rgb(248, 248, 200)');
+                    $('#moon').css('opacity', '0');
+                    $('#sun').css('opacity', '1')
+                    $('#sun').css('transition', 'opacity 2s ease-in-out');
+                    $('#moon').css('transition', 'opacity 2s ease-in-out');
+                    $('.stars').css('opacity', '0');
+                    $('.stars').css('transition', 'opacity 2s ease-in-out');
+                } else {
+                    $('body').css('background-color', 'rgb(75, 75, 118)');
+                    $('#moon').css('opacity', '1');
+                    $('#sun').css('opacity', '0');
+                    $('#moon').css('transition', 'opacity 2s ease-in-out');
+                    $('#sun').css('transition', 'opacity 2s ease-in-out');
+                    $('.stars').css('opacity', '0.8');
+                    $('.stars').css('transition', 'opacity 2s ease-in-out');
+                }
+                $('body').css('transition', 'background-color 2s ease-in-out');
+            }, 3000);
+
+            //************************************
+            const container = $('#container');
+            const chicken = $('#chicken');
+            let score=1;
+
+            function moveChickenAndDropEgg() {
+                const newX = Math.random() * (window.innerWidth - chicken.width());
+                const newY = Math.random() * (500 - chicken.height());
+
+                // Move the chicken to the new position
+                chicken.css({ transform: `translate(${newX}px, ${newY}px)` });
+
+                // Set a delay before dropping the egg (adjust as needed)
+                const delayBeforeEggDrop = 1000; // 1 second delay
+
+                // Wait for the chicken to reach its destination before dropping the egg
+                setTimeout(() => {
+                    // Create and display an egg image
+                    const egg = $('<img>', {
+                        src: getRandomEggImage(),
+                        alt: 'Egg',
+                        class: 'egg'
+                    });
+
+                    egg.css({
+                        left: `${newX+15}px`,
+                        top: `${newY+15}px`
+                    });
+
+                    container.append(egg);
+
+                
+                    // Add click event listener to handle the initial click
+                    function handleClick() {
+                        $(this).attr('src', getRandomChickenImage()) // Replace with a small chicken image
+                            .css({
+                                width: '150px', // Set your small chicken dimensions
+                                height: '150px'
+                            })
+                            .off('click', handleClick); // Remove the click event listener to prevent multiple clicks
+                            let scoreId=$("#score").html("").append("Score: "+score++)
+                            console.log("egg22")
+                        setTimeout(() => {
+                            console.log("egg remove ")
+                            $(this).remove();
+                        }, 2000);
+                    }
+
+                    egg.on('click', handleClick);
+                }, delayBeforeEggDrop);
+            }
+
+            function getRandomEggImage() {
+                // Assuming you have 10 egg images named egg1.png to egg10.png
+                const randomEggNumber = Math.floor(Math.random() * 10) + 1;
+                return `egg${randomEggNumber}.png`;
+            }
+
+            function getRandomChickenImage() {
+                // Assuming you have 10 egg images named egg1.png to egg10.png
+                const randomEggNumber = Math.floor(Math.random() * 10) + 1;
+                return `giphy${randomEggNumber}.gif`;
+            }
+            setInterval(moveChickenAndDropEgg, 2000);
+
+        }
+
+
+    </script>
+   
+</head>
+
+<body>
+    <div >
+        <div style="height: 400px; position: relative;">
+        <!-- cloud -->
+        <img class="cloud" src="cloud.png" alt="cloud" width="65" style="position: absolute; top: 18%;" />
+        <img class="cloud" src="cloud.png" alt="cloud" width="65" style="position: absolute; top: 10%; left: 25%" />
+        <img class="cloud" src="cloud.png" alt="cloud" width="65" style="position: absolute; top: 15%; left: 50%" />
+        <img class="cloud" src="cloud.png" alt="cloud" width="65" style="position: absolute; top: 25%; left: 75%" />
+
+        <!-- cloud 2 -->
+        <img class="cloud-2" src="cloud-2.png" alt="cloud-2" width="65"
+            style="position: absolute; top: 20%; left: 15%;" />
+        <img class="cloud-2" src="cloud-2.png" alt="cloud-2" width="65"
+            style="position: absolute; top: 30%; left: 30%" />
+        <img class="cloud-2" src="cloud-2.png" alt="cloud-2" width="65"
+            style="position: absolute; top: 5%; left: 45%" />
+        <img class="cloud-2" src="cloud-2.png" alt="cloud-2" width="65"
+            style="position: absolute; top: 24%; left: 60%" />
+        <img class="cloud-2" src="cloud-2.png" alt="cloud-2" width="65"
+            style="position: absolute; top: 13%; left: 90%" />
+
+        <!-- sun -->
+        <img id="sun" src="sun.png" alt="sun" width="70"
+            style="position: absolute; right: 20px; top: 20px; opacity: 1;" />
+        <img id="moon" src="moon.png" alt="moon" width="70"
+            style="position: absolute; right: 20px; top: 20px; opacity: 0;" />
+        </div>
+        <div id="container" style="position: absolute; top: 250px;" >
+            <img src="chicken.png" alt="Chicken" id="chicken">
+            <button class="score" id="score">Score: 0</button>
+        </div>
+    </div>
+
+       
+   
+    
+</body>
+
+</html>
